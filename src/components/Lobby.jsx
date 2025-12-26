@@ -13,6 +13,8 @@ import PlayerProgress from './PlayerProgress'
 import RingCollectAnimation from './RingCollectAnimation'
 import { ProblemSkeleton } from './SkeletonLoader'
 import { CustomizeDropdown } from './CustomizeDropdown'
+import sonicVsImg from '../assets/sonic-vs.png'
+import '../sonic-loader.css'
 
 
 // Will be populated from API
@@ -635,7 +637,7 @@ function Lobby() {
         return { problem, problemId, points }
       })
       .filter(Boolean)
-      .sort((a, b) => b.points - a.points)
+      .sort((a, b) => (a.problem.rating || 0) - (b.problem.rating || 0))
   }, [matchConfig?.problems, problemPoints])
 
   const formatTime = (ms) => {
@@ -682,14 +684,20 @@ function Lobby() {
 
     return (
       <div className={`min-h-screen p-4 md:p-8 pt-20 relative transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`} style={{ zIndex: 10 }}>
+        {/* Background Decor */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+          <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[100px] animate-pulse"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-yellow-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+
         <div className="max-w-7xl mx-auto relative" style={{ zIndex: 10 }}>
           <div className="absolute top-4 right-4" style={{ zIndex: 20 }}>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleLeaveBattle}
-              className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg ${darkMode
-                ? 'bg-red-700 hover:bg-red-600 text-white'
+              className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg backdrop-blur-md ${darkMode
+                ? 'bg-red-900/80 hover:bg-red-800 text-white border border-red-500/50'
                 : 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/50'
                 }`}
             >
@@ -705,76 +713,119 @@ function Lobby() {
               />
             )}
           </AnimatePresence>
-          <div className="text-center mb-6">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2 neon-glow" style={{ color: '#FFD700' }}>
-              ⚡ SONIC BATTLE ⚡
+          {/* Battle Header with Versus Image */}
+          <div className="flex flex-col items-center mb-10 relative">
+            <motion.div
+              initial={{ scale: 0, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              className="mb-6 relative w-80 h-40 md:w-96 md:h-48"
+            >
+              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+              <img src={sonicVsImg} alt="Sonic vs Sonic" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.4)]" />
+            </motion.div>
+
+            <h1 className="text-4xl md:text-6xl font-black mb-2 tracking-tighter italic" style={{
+              color: '#FFD700',
+              textShadow: '0 0 20px rgba(255, 215, 0, 0.5), 2px 2px 0px #b45309'
+            }}>
+              SONIC BATTLE
             </h1>
-            <div className="flex items-center justify-center gap-4">
-              <div className={`text-2xl font-bold ${timeRemaining < 60000 ? 'text-red-400' : 'text-white'}`}>
-                ⏱️ {formatTime(timeRemaining)}
+
+            <div className="flex items-center gap-6 mt-4 p-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
+              <div className="flex flex-col items-center">
+                <span className="text-xs uppercase tracking-widest text-blue-400 font-bold mb-1">Time Remaining</span>
+                <div className={`text-4xl font-mono font-bold tracking-widest ${timeRemaining < 60000 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+                  {formatTime(timeRemaining)}
+                </div>
               </div>
+
               {isFinalLap && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="px-4 py-2 bg-red-600 rounded-lg font-bold text-white animate-pulse"
+                  className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-white animate-pulse shadow-lg shadow-red-500/30"
                 >
                   🏁 FINAL LAP - 2x POINTS!
                 </motion.div>
               )}
             </div>
           </div>
-          <div className={`mb-8 rounded-lg p-6 sonic-border ${darkMode ? 'bg-gray-800/50' : 'bg-blue-900/50'}`}>
-            <h2 className="text-2xl font-bold mb-4 text-sonic-gold">Leaderboard</h2>
-            {sortedPlayers.map((playerData, index) => (
-              <PlayerProgress
-                key={playerData.handle}
-                player={playerData.player}
-                points={playerData.points}
-                previousPoints={previousScores.get(playerData.handle)}
-                maxPoints={maxPoints}
-                rank={index + 1}
-              />
-            ))}
-          </div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-4 text-sonic-gold">Problems</h2>
-            {!matchConfig.problems || matchConfig.problems.length === 0 ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4, 5].map(i => (
-                  <ProblemSkeleton key={i} />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3" style={{ contain: 'layout style paint' }}>
-                {sortedProblemsList.map(({ problem, problemId, points }) => {
-                  const solved = solvedProblems.get(problemId)
-                  const statusMap = problemStatuses.get(problemId) || new Map()
-                  let statusToShow = null
-                  if (solved) {
-                    statusToShow = 'AC'
-                  } else {
-                    const statuses = Array.from(statusMap.values())
-                    if (statuses.includes('OK')) {
-                      statusToShow = 'AC'
-                    } else if (statuses.includes('TIME_LIMIT_EXCEEDED')) {
-                      statusToShow = 'TLE'
-                    } else if (statuses.includes('WRONG_ANSWER')) {
-                      statusToShow = 'WA'
-                    }
-                  }
-                  return (
-                    <ProblemCard
-                      key={problemId}
-                      problem={problem}
-                      sonicPoints={points}
-                      status={statusToShow}
-                      solvedBy={solved?.handle}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Leaderboard Column */}
+            <div className="lg:col-span-1">
+              <div className={`sticky top-24 rounded-3xl overflow-hidden border-2 shadow-2xl backdrop-blur-xl ${darkMode ? 'bg-gray-900/80 border-blue-500/30' : 'bg-blue-900/80 border-sonic-gold/50'}`}>
+                <div className="p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-white/10">
+                  <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sonic-gold to-yellow-300 uppercase tracking-wider flex items-center gap-2">
+                    🏆 Leaderboard
+                  </h2>
+                </div>
+                <div className="p-4 space-y-3 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                  {sortedPlayers.map((playerData, index) => (
+                    <PlayerProgress
+                      key={playerData.handle}
+                      player={playerData.player}
+                      points={playerData.points}
+                      previousPoints={previousScores.get(playerData.handle)}
+                      maxPoints={maxPoints}
+                      rank={index + 1}
                     />
-                  )
-                })}
+                  ))}
+                </div>
               </div>
-            )}
+            </div>
+
+            {/* Problems Grid */}
+            <div className="lg:col-span-2">
+              <div className={`rounded-3xl p-6 border-2 shadow-2xl backdrop-blur-xl ${darkMode ? 'bg-gray-800/60 border-gray-700' : 'bg-white/10 border-white/20'}`}>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <span className="text-3xl">🧩</span>
+                    <span>Problems</span>
+                    <span className="text-sm font-normal px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      Sorted by Difficulty (Low → High)
+                    </span>
+                  </h2>
+                </div>
+
+                {!matchConfig.problems || matchConfig.problems.length === 0 ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <ProblemSkeleton key={i} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4" style={{ contain: 'layout style paint' }}>
+                    {sortedProblemsList.map(({ problem, problemId, points }) => {
+                      const solved = solvedProblems.get(problemId)
+                      const statusMap = problemStatuses.get(problemId) || new Map()
+                      let statusToShow = null
+                      if (solved) {
+                        statusToShow = 'AC'
+                      } else {
+                        const statuses = Array.from(statusMap.values())
+                        if (statuses.includes('OK')) {
+                          statusToShow = 'AC'
+                        } else if (statuses.includes('TIME_LIMIT_EXCEEDED')) {
+                          statusToShow = 'TLE'
+                        } else if (statuses.includes('WRONG_ANSWER')) {
+                          statusToShow = 'WA'
+                        }
+                      }
+                      return (
+                        <ProblemCard
+                          key={problemId}
+                          problem={problem}
+                          sonicPoints={points}
+                          status={statusToShow}
+                          solvedBy={solved?.handle}
+                        />
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -783,6 +834,7 @@ function Lobby() {
 
   return (
     <div className={`min-h-screen p-4 md:p-8 transition-colors duration-300 relative ${darkMode ? 'bg-gray-900' : ''}`} style={{ zIndex: 10 }}>
+      {/* Lobby content follows... */}
       <div className="max-w-6xl mx-auto relative" style={{ zIndex: 10 }}>
         {/* Header */}
         <div className="text-center mb-10 relative" style={{ zIndex: 10 }}>
