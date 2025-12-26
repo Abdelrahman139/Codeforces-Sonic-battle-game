@@ -225,7 +225,6 @@ function Lobby() {
         handle, points, playerInfo: matchConfig.players.find(p => p.handle === handle)
       })).sort((a, b) => b.points - a.points),
       solvedProblems: Array.from(solvedProblems.entries()),
-      mysteryProblemIndex: matchConfig.mysteryProblemIndex,
       matchConfig
     }
     sessionStorage.setItem('matchResults', JSON.stringify(results))
@@ -248,7 +247,6 @@ function Lobby() {
         const finalLapStart = matchConfig.startTime + (matchDuration * 0.75)
         const isFinalLap = matchConfig.finalLap && now >= finalLapStart
         let multiplier = 1
-        if (matchConfig.problems.indexOf(problem) === matchConfig.mysteryProblemIndex) multiplier *= 2
         if (isFinalLap) multiplier *= 2
         const pointsToAward = calculateProblemPoints(problem.rating, multiplier)
         setPlayerScores(prev => {
@@ -554,8 +552,6 @@ function Lobby() {
       }
 
       console.log(`Selected ${problemsToUse.length} problems for match`)
-      // Select mystery problem index (random problem that awards 2x points)
-      const mysteryProblemIndex = Math.floor(Math.random() * problemsToUse.length)
 
       // Prepare match configuration
       const matchConfig = {
@@ -569,7 +565,6 @@ function Lobby() {
         numberOfProblems,
         startTime: startTime,
         endTime: startTime + (matchDuration * 60 * 1000),
-        mysteryProblemIndex,
         matchId: newMatchId
       }
 
@@ -593,7 +588,6 @@ function Lobby() {
   }
 
   // Calculate match values (hooks must be before conditional returns)
-  const mysteryProblemIndex = matchConfig?.mysteryProblemIndex ?? -1
   const problemPoints = useMemo(() => {
     if (!matchConfig?.problems || !Array.isArray(matchConfig.problems)) return new Map()
     const points = new Map()
@@ -606,14 +600,13 @@ function Lobby() {
       if (!problem) return
       const rating = problem.rating || 1500
       let multiplier = 1
-      if (index === mysteryProblemIndex) multiplier *= 2
       if (isFinalLap) multiplier *= 2
       const pointsValue = calculateProblemPoints(rating, multiplier)
       const problemId = `${problem.contestId}-${problem.index}`
       points.set(problemId, pointsValue)
     })
     return points
-  }, [matchConfig?.problems, matchConfig?.matchDuration, matchConfig?.startTime, matchConfig?.finalLap, mysteryProblemIndex])
+  }, [matchConfig?.problems, matchConfig?.matchDuration, matchConfig?.startTime, matchConfig?.finalLap])
 
   const sortedPlayers = useMemo(() => {
     if (!matchConfig?.players) return []
@@ -686,11 +679,11 @@ function Lobby() {
       <div className={`min-h-screen p-4 md:p-8 pt-20 relative transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`} style={{ zIndex: 10 }}>
         {/* Background Decor */}
         <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-          <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[100px] animate-pulse"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-yellow-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[100px]"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-yellow-500/10 rounded-full blur-[100px]"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto relative" style={{ zIndex: 10 }}>
+        <div className="w-full max-w-[95%] 2xl:max-w-[1800px] mx-auto relative px-4" style={{ zIndex: 10 }}>
           <div className="absolute top-4 right-4" style={{ zIndex: 20 }}>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -716,12 +709,17 @@ function Lobby() {
           {/* Battle Header with Versus Image */}
           <div className="flex flex-col items-center mb-10 relative">
             <motion.div
-              initial={{ scale: 0, rotate: -10 }}
+              initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              className="mb-6 relative w-80 h-40 md:w-96 md:h-48"
+              transition={{ type: "spring", duration: 1.5 }}
+              className="mb-8 relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center bg-black/50 rounded-full"
             >
-              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-              <img src={sonicVsImg} alt="Sonic vs Sonic" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.4)]" />
+              <div className="sonic-ring-spinner" style={{ borderWidth: '4px' }}></div>
+              <img
+                src={sonicVsImg}
+                alt="Sonic vs Sonic"
+                className="w-[90%] h-[90%] object-cover rounded-full drop-shadow-[0_0_25px_rgba(255,215,0,0.4)]"
+              />
             </motion.div>
 
             <h1 className="text-4xl md:text-6xl font-black mb-2 tracking-tighter italic" style={{

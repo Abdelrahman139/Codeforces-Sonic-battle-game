@@ -4,19 +4,7 @@ import React from 'react'
 const FloatingRing = React.memo(({ delay, x, y, duration }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{
-        opacity: [0.2, 0.4, 0.2],
-        scale: [0.8, 1.1, 0.8],
-        x: [0, 15, 0],
-        y: [0, -20, 0],
-      }}
-      transition={{
-        duration: duration || 4,
-        delay,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
+      initial={{ opacity: 0.2, scale: 1, x: 0, y: 0 }}
       className="absolute text-sonic-gold/15 text-3xl pointer-events-none"
       style={{ left: `${x}%`, top: `${y}%`, willChange: 'transform, opacity' }}
     >
@@ -30,17 +18,7 @@ FloatingRing.displayName = 'FloatingRing'
 const Checkpoint = React.memo(({ delay, x, y }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{
-        opacity: [0.15, 0.35, 0.15],
-        scale: [1, 1.2, 1],
-      }}
-      transition={{
-        duration: 3,
-        delay,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
+      initial={{ opacity: 0.2, scale: 1 }}
       className="absolute text-sonic-blue/25 text-xl pointer-events-none"
       style={{ left: `${x}%`, top: `${y}%`, willChange: 'transform, opacity' }}
     >
@@ -67,7 +45,7 @@ const BACKGROUND_ELEMENTS = (() => {
     y: Math.random() * 100,
     delay: Math.random() * 2,
   }))
-  
+
   return { rings, checkpoints }
 })()
 
