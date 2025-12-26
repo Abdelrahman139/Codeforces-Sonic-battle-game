@@ -1,16 +1,10 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
-import sonicRunningGif from '../assets/sonic-running.gif'
+import { useState } from 'react'
+import sonicAvatar from '../assets/sonic-avatar.png'
+import '../sonic-loader.css' // Ensure we have the loader styles available
 
-function SonicCountdown({ countdown, inviteLink, darkMode, onCopy }) {
-  const [animationFrame, setAnimationFrame] = useState(0)
-
-  // ... (interval effect can be removed or kept, doesn't hurt) ...
-  useEffect(() => {
-    // We can keep this if we want to use frames later, but for GIF it's not needed
-    // Leaving it to minimize diff noise or removing it if unused.
-    // Let's remove it for cleanliness as we use a GIF now.
-  }, [])
+function SonicCountdown({ countdown, inviteLink, darkMode }) {
+  const [isCopied, setIsCopied] = useState(false)
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000)
@@ -24,55 +18,97 @@ function SonicCountdown({ countdown, inviteLink, darkMode, onCopy }) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  const handleCopy = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink).then(() => {
+        setIsCopied(true)
+        setTimeout(() => setIsCopied(false), 2000)
+      }).catch((err) => {
+        console.error('Failed to copy:', err)
+        // Fallback or just ignore if it fails silently
+      })
+    }
+  }
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="mt-6 p-8 bg-gradient-to-br from-purple-900/60 to-blue-900/60 border-2 border-sonic-gold rounded-2xl shadow-2xl"
+      className={`mt-8 p-10 rounded-3xl border-2 backdrop-blur-xl relative overflow-hidden transition-all duration-300 ${darkMode
+          ? 'bg-gray-900/80 border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.2)]'
+          : 'bg-blue-900/80 border-sonic-gold/50 shadow-[0_0_50px_rgba(251,191,36,0.3)]'
+        }`}
     >
-      <div className="text-center">
-        {/* Sonic Running Animation */}
-        <div className="mb-6 relative h-32 flex justify-center items-center overflow-hidden">
-          <img
-            src={sonicRunningGif}
-            alt="Sonic Waiting"
-            className="h-full object-contain"
-          />
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
+
+      <div className="flex flex-col items-center text-center z-10 relative">
+
+        {/* Sonic Avatar with Neon Ring */}
+        <div className="sonic-neon-container mb-8 scale-110">
+          <div className="sonic-avatar-container">
+            <div className="sonic-ring-spinner"></div>
+            <img
+              src={sonicAvatar}
+              alt="Sonic Waiting"
+              className="sonic-avatar"
+            />
+          </div>
         </div>
 
         {/* Countdown Timer */}
-        <div className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-sonic-gold'} neon-glow flex items-center justify-center gap-3`}>
-          <span>{formatTime(countdown)}</span>
+        <div className="mb-8">
+          <div className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-2">Time Until Battle</div>
+          <div className={`text-6xl md:text-8xl font-black tabular-nums tracking-tight loading-text`}>
+            {formatTime(countdown)}
+          </div>
         </div>
 
-        <p className={`text-xl font-semibold mb-6 ${darkMode ? 'text-gray-300' : 'text-blue-200'}`}>
-          Battle will start automatically!
+        <p className={`text-xl font-medium mb-8 max-w-lg ${darkMode ? 'text-gray-300' : 'text-blue-100'}`}>
+          Sharpen your claws! The zone is loading and the battle will start automatically.
         </p>
 
-        {/* Invite Link */}
+        {/* Invite Link Section */}
         {inviteLink && (
-          <div className="mt-6 p-4 bg-green-900/40 border-2 border-green-500 rounded-xl">
-            <label className={`block text-sm font-bold mb-3 ${darkMode ? 'text-gray-200' : 'text-green-300'}`}>
-              📤 Invite Link (Share with players):
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inviteLink}
-                readOnly
-                className="flex-1 px-4 py-2 bg-black/50 border border-green-600 rounded-lg text-white text-sm font-mono"
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onCopy}
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all relative"
-                style={{ zIndex: 15, pointerEvents: 'auto' }}
-              >
-                Copy
-              </motion.button>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className={`w-full max-w-2xl p-1 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 p-[2px]`}
+          >
+            <div className={`p-5 rounded-2xl ${darkMode ? 'bg-gray-900' : 'bg-blue-950'} h-full`}>
+              <label className="block text-xs font-bold uppercase tracking-wider text-center text-blue-400 mb-3">
+                <span className="mr-2">🔗</span>  Invite Challengers
+              </label>
+
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className={`flex-1 flex items-center px-4 py-3 rounded-xl border border-white/10 ${darkMode ? 'bg-black/40' : 'bg-black/30'}`}>
+                  <code className="text-sm text-blue-200 truncate font-mono select-all">
+                    {inviteLink}
+                  </code>
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleCopy}
+                  className={`px-8 py-3 font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 min-w-[140px] ${isCopied
+                      ? 'bg-blue-600 text-white shadow-blue-500/20'
+                      : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 text-white shadow-green-500/20'
+                    }`}
+                >
+                  <motion.span
+                    key={isCopied ? "copied" : "copy"}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    {isCopied ? "COPIED! ✓" : "COPY"}
+                  </motion.span>
+                </motion.button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </motion.div>

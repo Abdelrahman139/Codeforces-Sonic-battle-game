@@ -19,7 +19,7 @@ function CountdownPage() {
   useEffect(() => {
     const inviteParam = new URLSearchParams(window.location.search).get('invite')
     let config = sessionStorage.getItem('matchConfig')
-    
+
     // If no config in sessionStorage but we have an invite param, try localStorage
     if (!config && inviteParam) {
       config = localStorage.getItem(`matchConfig_${inviteParam}`)
@@ -27,7 +27,7 @@ function CountdownPage() {
         sessionStorage.setItem('matchConfig', config)
       }
     }
-    
+
     if (!config) {
       navigate('/')
       return
@@ -36,31 +36,31 @@ function CountdownPage() {
     try {
       const parsed = JSON.parse(config)
       setMatchConfig(parsed)
-      
+
       const startTime = parsed.startTime || Date.now()
       const now = Date.now()
       const initialCountdown = Math.max(0, startTime - now)
       setCountdown(initialCountdown)
-      
+
       const baseUrl = window.location.origin
-      const inviteUrl = parsed.matchId 
+      const inviteUrl = parsed.matchId
         ? `${baseUrl}/?invite=${parsed.matchId}`
         : ''
       setInviteLink(inviteUrl)
-      
+
       // Start countdown timer
       const interval = setInterval(() => {
         const now = Date.now()
         const remaining = Math.max(0, startTime - now)
         setCountdown(remaining)
-        
+
         // When countdown reaches 0, navigate to home page (match will start there)
         if (remaining <= 0) {
           clearInterval(interval)
           navigate('/')
         }
       }, 1000)
-      
+
       return () => clearInterval(interval)
     } catch (err) {
       console.error('Error loading match config:', err)
@@ -76,7 +76,7 @@ function CountdownPage() {
     window.addEventListener('darkModeChange', handleDarkModeChange)
     return () => window.removeEventListener('darkModeChange', handleDarkModeChange)
   }, [])
-  
+
   // Sync dark mode state with body class (but don't dispatch event - nav bar controls it)
   useEffect(() => {
     if (darkMode) {
@@ -98,20 +98,11 @@ function CountdownPage() {
             ⚡ Battle Starting Soon ⚡
           </h1>
         </div>
-        
+
         <SonicCountdown
           countdown={countdown}
           inviteLink={inviteLink}
           darkMode={darkMode}
-          onCopy={() => {
-            if (inviteLink) {
-              navigator.clipboard.writeText(inviteLink).then(() => {
-                alert('Link copied to clipboard!')
-              }).catch(() => {
-                prompt('Copy this link:', inviteLink)
-              })
-            }
-          }}
         />
       </div>
     </div>
