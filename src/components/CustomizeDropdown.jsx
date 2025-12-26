@@ -52,7 +52,6 @@ export function CustomizeDropdown({ options, darkMode, children }) {
                         animate={{ opacity: 1, y: 0, height: 'auto' }}
                         exit={{ opacity: 0, y: -10, height: 0 }}
                         transition={{ duration: 0.2 }}
-                        transition={{ duration: 0.2 }}
                         className={`mt-2 rounded-xl overflow-hidden shadow-2xl border-2 backdrop-blur-xl ${darkMode
                             ? 'bg-gray-900/95 border-gray-600'
                             : 'bg-black/80 border-sonic-gold'

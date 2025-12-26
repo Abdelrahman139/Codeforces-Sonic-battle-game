@@ -1529,9 +1529,11 @@ function Lobby() {
                 ? 'Preparing Battle...'
                 : !selectedStartTime
                   ? '⚠️ Please Select Start Time (Required)'
-                  : Object.keys(validatedPlayers).length !== playerCount
-                    ? 'Please Wait for Validation'
-                    : 'START BATTLE ⚡'
+                  : players.some(p => !p.trim())
+                    ? '⚠️ Please Enter Player Handles'
+                    : Object.keys(validatedPlayers).length !== playerCount
+                      ? 'Please Wait for Validation'
+                      : 'START BATTLE ⚡'
               }
             </motion.button>
           )}

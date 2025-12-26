@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import Lobby from './components/Lobby'
 import CountdownPage from './components/CountdownPage'
@@ -37,50 +37,50 @@ function AppContent() {
       <div className="relative pt-16" style={{ zIndex: 10, position: 'relative' }}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-          <Route 
-            path="/" 
-            element={
-              <motion.div
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={pageTransition}
-              >
-                <Lobby />
-              </motion.div>
-            } 
-          />
-          <Route 
-            path="/countdown" 
-            element={
-              <motion.div
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={pageTransition}
-              >
-                <CountdownPage />
-              </motion.div>
-            } 
-          />
-          <Route 
-            path="/results" 
-            element={
-              <motion.div
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={pageTransition}
-              >
-                <Results />
-              </motion.div>
-            } 
-          />
-        </Routes>
-      </AnimatePresence>
+            <Route
+              path="/"
+              element={
+                <motion.div
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={pageTransition}
+                >
+                  <Lobby />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/countdown"
+              element={
+                <motion.div
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={pageTransition}
+                >
+                  <CountdownPage />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/results"
+              element={
+                <motion.div
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={pageTransition}
+                >
+                  <Results />
+                </motion.div>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
       </div>
     </>
   )
@@ -88,9 +88,9 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppContent />
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
