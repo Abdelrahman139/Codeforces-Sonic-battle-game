@@ -877,7 +877,7 @@ function Lobby() {
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`text-5xl md:text-7xl font-extrabold mb-4 tracking-tight ${darkMode ? '' : 'neon-glow'}`}
+            className={`text-3xl md:text-7xl font-extrabold mb-4 tracking-tight ${darkMode ? '' : 'neon-glow'}`}
             style={{ color: '#FFD700' }}
           >
             ⚡ SONIC BATTLE ⚡
@@ -1069,7 +1069,7 @@ function Lobby() {
 
 
         {/* Main Lobby Card */}
-        <div className={`rounded-2xl p-8 md:p-10 shadow-2xl backdrop-blur-sm transition-all duration-300 relative ${darkMode
+        <div className={`rounded-2xl p-4 md:p-10 shadow-2xl backdrop-blur-sm transition-all duration-300 relative ${darkMode
           ? 'card-elevated-dark border-2 border-gray-700'
           : 'card-elevated sonic-border'
           }`} style={{ zIndex: 10 }}>
