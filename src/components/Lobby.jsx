@@ -144,57 +144,72 @@ function Lobby() {
         console.error('Error parsing match config:', err)
       }
     } else if (inviteParam) {
-      // Try to load match config from localStorage using the invite code
-      console.log('Loading match config for invite:', inviteParam)
-      const storedConfig = localStorage.getItem(`matchConfig_${inviteParam}`)
+      // Try to load match config from invite param (serverless first, then local)
+      let loadedConfig = null;
 
-      if (storedConfig) {
-        try {
-          const parsed = JSON.parse(storedConfig)
-          if (parsed.players && Array.isArray(parsed.players) && parsed.players.length > 0 &&
-            parsed.problems && Array.isArray(parsed.problems)) {
-            const now = Date.now()
-            const startTime = parsed.startTime || now
-            const endTime = parsed.endTime || (startTime + (parsed.matchDuration || 60) * 60 * 1000)
-            const hasStarted = now >= startTime
-
-            // Store in sessionStorage for this user
-            sessionStorage.setItem('matchConfig', JSON.stringify(parsed))
-
-            setMatchConfig(parsed)
-            setMatchHasStarted(hasStarted)
-            setTimeRemaining(hasStarted ? Math.max(0, endTime - now) : Math.max(0, startTime - now))
-
-            const scores = new Map()
-            const prevScores = new Map()
-            parsed.players.forEach(player => {
-              if (player && player.handle) {
-                scores.set(player.handle, 0)
-                prevScores.set(player.handle, 0)
-              }
-            })
-            setPlayerScores(scores)
-            setPreviousScores(prevScores)
-
-            console.log('Successfully loaded match config from invite link')
-
-            // Redirect based on match status
-            if (!hasStarted) {
-              // Match hasn't started - redirect to countdown page
-              navigate('/countdown')
-            }
-            // If match has started, stay on home page (match UI will show)
-            return
+      // 1. Try to decode serverless config (base64)
+      try {
+        if (inviteParam.length > 50) { // Simple heuristic check
+          const decoded = decodeURIComponent(escape(window.atob(inviteParam)))
+          const parsed = JSON.parse(decoded)
+          if (parsed && parsed.matchId) {
+            loadedConfig = parsed
+            console.log('Successfully decoded serverless match config')
           }
-        } catch (err) {
-          console.error('Error parsing match config from invite:', err)
         }
+      } catch (e) {
+        // Not a base64 config, ignore
+      }
+
+      // 2. If not serverless, try localStorage (legacy/local)
+      if (!loadedConfig) {
+        console.log('Loading match config from local storage for invite:', inviteParam)
+        const storedConfig = localStorage.getItem(`matchConfig_${inviteParam}`)
+        if (storedConfig) {
+          try {
+            loadedConfig = JSON.parse(storedConfig)
+          } catch (e) { console.error('Error parsing local config:', e) }
+        }
+      }
+
+      if (loadedConfig) {
+        const parsed = loadedConfig
+        const now = Date.now()
+        const startTime = parsed.startTime || now
+        const endTime = parsed.endTime || (startTime + (parsed.matchDuration || 60) * 60 * 1000)
+        const hasStarted = now >= startTime
+
+        // Store in sessionStorage for this user
+        sessionStorage.setItem('matchConfig', JSON.stringify(parsed))
+
+        setMatchConfig(parsed)
+        setMatchHasStarted(hasStarted)
+        setTimeRemaining(hasStarted ? Math.max(0, endTime - now) : Math.max(0, startTime - now))
+
+        const scores = new Map()
+        const prevScores = new Map()
+        parsed.players.forEach(player => {
+          if (player && player.handle) {
+            scores.set(player.handle, 0)
+            prevScores.set(player.handle, 0)
+          }
+        })
+        setPlayerScores(scores)
+        setPreviousScores(prevScores)
+
+        // Redirect based on match status
+        if (!hasStarted) {
+          // Match hasn't started - redirect to countdown page
+          navigate('/countdown')
+        }
+        // If match has started, stay on home page (match UI will show)
+        return
       }
 
       // If we couldn't load the config, show join section
       setShowJoinSection(true)
       setJoinInviteCode(inviteParam)
-      setError('Match not found. Please check the invite link or ask the host to share it again.')
+      setError('Match not found. The invite link might be invalid or expired.')
     }
   }, [searchParams])
 
@@ -514,9 +529,7 @@ function Lobby() {
       const newMatchId = `match-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
       console.log('Generated match ID:', newMatchId)
 
-      // Generate invite link (home page with invite code)
-      // Generate invite link (always point to live site)
-      const inviteUrl = `https://Abdelrahman139.github.io/Codeforces-Sonic-battle-game/#/?invite=${newMatchId}`
+      // Removed: inviteUrl is now generated after matchConfig is created
 
       // Use empty array if all topics mode is selected
       const categoriesToUse = useAllTopics ? [] : selectedCategories
@@ -568,11 +581,17 @@ function Lobby() {
         matchId: newMatchId
       }
 
-      console.log('Match config prepared, storing in sessionStorage and localStorage...')
       // Store in sessionStorage for the match component (for creator)
       sessionStorage.setItem('matchConfig', JSON.stringify(matchConfig))
 
-      // Also store in localStorage with matchId so others can join via invite link
+      // Generate serverless invite link with encoded config
+      const configString = JSON.stringify(matchConfig)
+      // Use btoa for base64 encoding (handle unicode with encodeURIComponent)
+      const encodedConfig = btoa(unescape(encodeURIComponent(configString)))
+      const inviteUrl = `https://Abdelrahman139.github.io/Codeforces-Sonic-battle-game/#/?invite=${encodedConfig}`
+      setInviteLink(inviteUrl) // Assuming there is a setInviteLink state or we pass it down
+
+      // Also store in localStorage with matchId so others can join via invite link (legacy/local backup)
       localStorage.setItem(`matchConfig_${newMatchId}`, JSON.stringify(matchConfig))
 
       console.log('Match prepared, redirecting to countdown page...')
