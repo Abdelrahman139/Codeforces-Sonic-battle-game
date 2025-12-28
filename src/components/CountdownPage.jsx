@@ -42,10 +42,11 @@ function CountdownPage() {
       const initialCountdown = Math.max(0, startTime - now)
       setCountdown(initialCountdown)
 
-      const baseUrl = window.location.origin
-      const inviteUrl = parsed.matchId
-        ? `${baseUrl}/?invite=${parsed.matchId}`
-        : ''
+      // Generate serverless invite link with encoded config
+      const configString = JSON.stringify(parsed)
+      // Use btoa for base64 encoding (handle unicode with encodeURIComponent)
+      const encodedConfig = btoa(unescape(encodeURIComponent(configString)))
+      const inviteUrl = `https://Abdelrahman139.github.io/Codeforces-Sonic-battle-game/#/?invite=${encodedConfig}`
       setInviteLink(inviteUrl)
 
       // Start countdown timer
