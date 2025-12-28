@@ -113,7 +113,8 @@ function Lobby() {
   // Initialize match from sessionStorage or invite param
   useEffect(() => {
     const config = sessionStorage.getItem('matchConfig')
-    const inviteParam = searchParams.get('invite')
+    // Check both hash params and main URL query params (handling pastes before #)
+    const inviteParam = searchParams.get('invite') || new URLSearchParams(window.location.search).get('invite')
 
     if (config) {
       try {
