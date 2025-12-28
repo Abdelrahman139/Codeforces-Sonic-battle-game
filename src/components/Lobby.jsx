@@ -1265,7 +1265,7 @@ function Lobby() {
             </CustomizeDropdown>
 
             {/* Max Rating, Match Duration, and Number of Problems - Better Styled Inputs with Arrow Buttons */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className={`rounded-xl p-4 border-2 backdrop-blur-sm transition-all duration-200 ${darkMode
                 ? 'bg-gray-800/40 border-gray-700'
                 : 'bg-blue-800/20 border-blue-600/40'
