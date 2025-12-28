@@ -515,8 +515,8 @@ function Lobby() {
       console.log('Generated match ID:', newMatchId)
 
       // Generate invite link (home page with invite code)
-      const baseUrl = window.location.origin
-      const inviteUrl = `${baseUrl}/?invite=${newMatchId}`
+      // Generate invite link (always point to live site)
+      const inviteUrl = `https://Abdelrahman139.github.io/Codeforces-Sonic-battle-game/#/?invite=${newMatchId}`
 
       // Use empty array if all topics mode is selected
       const categoriesToUse = useAllTopics ? [] : selectedCategories
