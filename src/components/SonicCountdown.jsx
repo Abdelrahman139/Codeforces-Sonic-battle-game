@@ -35,8 +35,8 @@ function SonicCountdown({ countdown, inviteLink, darkMode }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={`mt-8 p-10 rounded-3xl border-2 backdrop-blur-xl relative overflow-hidden transition-all duration-300 ${darkMode
-          ? 'bg-gray-900/80 border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.2)]'
-          : 'bg-blue-900/80 border-sonic-gold/50 shadow-[0_0_50px_rgba(251,191,36,0.3)]'
+        ? 'bg-gray-900/80 border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.2)]'
+        : 'bg-blue-900/80 border-sonic-gold/50 shadow-[0_0_50px_rgba(251,191,36,0.3)]'
         }`}
     >
       {/* Background Decor */}
@@ -83,8 +83,8 @@ function SonicCountdown({ countdown, inviteLink, darkMode }) {
               </label>
 
               <div className="flex flex-col md:flex-row gap-3">
-                <div className={`flex-1 flex items-center px-4 py-3 rounded-xl border border-white/10 ${darkMode ? 'bg-black/40' : 'bg-black/30'}`}>
-                  <code className="text-sm text-blue-200 truncate font-mono select-all">
+                <div className={`flex-1 flex items-center px-4 py-3 rounded-xl border border-white/10 ${darkMode ? 'bg-black/40' : 'bg-black/30'} min-w-0 overflow-hidden`}>
+                  <code className="text-sm text-blue-200 truncate font-mono select-all w-full">
                     {inviteLink}
                   </code>
                 </div>
@@ -94,8 +94,8 @@ function SonicCountdown({ countdown, inviteLink, darkMode }) {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleCopy}
                   className={`px-8 py-3 font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 min-w-[140px] ${isCopied
-                      ? 'bg-blue-600 text-white shadow-blue-500/20'
-                      : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 text-white shadow-green-500/20'
+                    ? 'bg-blue-600 text-white shadow-blue-500/20'
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 text-white shadow-green-500/20'
                     }`}
                 >
                   <motion.span
