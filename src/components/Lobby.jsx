@@ -24,7 +24,22 @@ function Lobby() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [playerCount, setPlayerCount] = useState(2)
-  const [players, setPlayers] = useState(['', ''])
+  // Smart Save: Initialize from localStorage if available
+  const [players, setPlayers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('savedPlayerHandles')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length >= 2) {
+          // Pad with empty strings if needed to match default count
+          return parsed
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load saved handles:', e)
+    }
+    return ['', '']
+  })
   const [validatedPlayers, setValidatedPlayers] = useState({})
   const [validating, setValidating] = useState(false)
   const [validationErrors, setValidationErrors] = useState({})
@@ -109,6 +124,18 @@ function Lobby() {
       }
     }
   }, [])
+
+
+  // Smart Save: Auto-save player handles when they change
+  useEffect(() => {
+    // Debounce slightly to avoid excessive writes
+    const timer = setTimeout(() => {
+      if (players.some(p => p.length > 0)) {
+        localStorage.setItem('savedPlayerHandles', JSON.stringify(players))
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [players])
 
   // Initialize match from sessionStorage or invite param
   useEffect(() => {
@@ -1133,10 +1160,10 @@ function Lobby() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <div className="flex gap-4 items-center">
+                  <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-stretch md:items-center">
                     <input
                       type="text"
-                      placeholder={`Player ${index + 1} Codeforces Handle`}
+                      placeholder={`Player ${index + 1} Handle`}
                       value={player}
                       onChange={(e) => handlePlayerInput(index, e.target.value)}
                       className={`flex-1 px-5 py-3.5 input-field text-white placeholder-opacity-60 ${darkMode ? 'bg-gray-800/50 border-gray-600 placeholder-gray-400' : 'placeholder-blue-300'
@@ -1145,9 +1172,9 @@ function Lobby() {
                     />
                     {validatedPlayers[index] && (
                       <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="flex items-center gap-3 px-4 py-2 bg-green-500/20 border-2 border-green-500 rounded-xl text-green-400"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500/20 border-2 border-green-500 rounded-xl text-green-400 text-sm md:text-base font-bold whitespace-nowrap"
                       >
                         <span className="text-2xl">✓</span>
                         <span className="font-semibold">

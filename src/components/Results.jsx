@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { PlayerStatistics } from './PlayerStatistics'
+import { Celebration } from './Celebration'
 
 function Results() {
   const navigate = useNavigate()
   const [results, setResults] = useState(null)
   const [revealedMystery, setRevealedMystery] = useState(false)
-  
+
   useEffect(() => {
     const stored = sessionStorage.getItem('matchResults')
     if (stored) {
@@ -16,7 +17,7 @@ function Results() {
       navigate('/')
     }
   }, [navigate])
-  
+
   if (!results) {
     return (
       <div className="min-h-screen flex items-center justify-center relative z-10">
@@ -37,17 +38,17 @@ function Results() {
       </div>
     )
   }
-  
+
   const { players, solvedProblems, mysteryProblemIndex, matchConfig } = results
   const solvedProblemsMap = new Map(solvedProblems)
-  
+
   const handleRevealMystery = () => {
     setRevealedMystery(true)
   }
 
   const handleShareResults = () => {
     const shareUrl = `${window.location.origin}/results?match=${matchConfig?.matchId || 'current'}`
-    
+
     if (navigator.share) {
       navigator.share({
         title: 'Sonic Battle Results',
@@ -66,9 +67,12 @@ function Results() {
       })
     }
   }
-  
+
   return (
     <div className="min-h-screen p-4 md:p-8 pt-20 relative" style={{ zIndex: 10 }}>
+      {/* Celebration Effect for Winner */}
+      {players.length > 0 && <Celebration />}
+
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -76,7 +80,7 @@ function Results() {
             🏁 MATCH RESULTS 🏁
           </h1>
         </div>
-        
+
         {/* Winner Announcement */}
         {players.length > 0 && (
           <motion.div
@@ -93,7 +97,7 @@ function Results() {
             </div>
           </motion.div>
         )}
-        
+
         {/* Final Leaderboard */}
         <div className="mb-8 bg-blue-900/50 rounded-lg p-6 sonic-border">
           <h2 className="text-2xl font-bold mb-4 text-sonic-gold">Final Standings</h2>
@@ -124,7 +128,7 @@ function Results() {
             ))}
           </div>
         </div>
-        
+
         {/* Mystery Problem Reveal */}
         {!revealedMystery && mysteryProblemIndex >= 0 && (
           <div className="mb-8 text-center">
@@ -136,7 +140,7 @@ function Results() {
             </button>
           </div>
         )}
-        
+
         {revealedMystery && mysteryProblemIndex >= 0 && matchConfig?.problems && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -148,7 +152,7 @@ function Results() {
               const mysteryProblem = matchConfig.problems[mysteryProblemIndex]
               const problemId = `${mysteryProblem.contestId}-${mysteryProblem.index}`
               const solved = solvedProblemsMap.get(problemId)
-              
+
               return (
                 <div className="p-4 bg-purple-800/50 rounded-lg">
                   <div className="text-xl font-bold mb-2">
@@ -167,7 +171,7 @@ function Results() {
             })()}
           </motion.div>
         )}
-        
+
         {/* Player Statistics */}
         <PlayerStatistics
           players={matchConfig?.players || []}
@@ -180,11 +184,11 @@ function Results() {
           <h2 className="text-2xl font-bold mb-4 text-sonic-gold">Problems Solved</h2>
           <div className="space-y-2">
             {Array.from(solvedProblemsMap.entries()).map(([problemId, data]) => {
-              const problem = matchConfig?.problems?.find(p => 
+              const problem = matchConfig?.problems?.find(p =>
                 `${p.contestId}-${p.index}` === problemId
               )
               if (!problem) return null
-              
+
               return (
                 <div key={problemId} className="flex items-center justify-between p-3 bg-blue-800/50 rounded-lg">
                   <div>
@@ -210,7 +214,7 @@ function Results() {
             )}
           </div>
         </div>
-        
+
         {/* Action Buttons */}
         <div className="flex gap-4 justify-center flex-wrap">
           <motion.button
