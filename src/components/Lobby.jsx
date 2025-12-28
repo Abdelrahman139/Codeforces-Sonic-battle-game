@@ -898,7 +898,44 @@ function Lobby() {
                     return
                   }
 
-                  // Extract invite code from URL if full link provided
+                  // 1. Try to decode serverless config directly (support full URL or base64 code)
+                  let serverlessConfig = null;
+                  try {
+                    let potentialCode = code;
+                    // Extract from URL if present
+                    if (code.includes('invite=')) {
+                      const match = code.match(/invite=([^&]+)/);
+                      if (match) potentialCode = match[1];
+                    }
+
+                    if (potentialCode.length > 50) {
+                      const decoded = decodeURIComponent(escape(window.atob(potentialCode)));
+                      const parsed = JSON.parse(decoded);
+                      if (parsed && parsed.matchId) {
+                        serverlessConfig = parsed;
+                      }
+                    }
+                  } catch (e) {
+                    // Not a valid encoded config, continue to legacy lookup
+                  }
+
+                  if (serverlessConfig) {
+                    console.log('Serverless match config decoded manually:', serverlessConfig);
+                    const parsed = serverlessConfig;
+                    const now = Date.now();
+                    const startTime = parsed.startTime || now;
+                    const hasStarted = now >= startTime;
+
+                    sessionStorage.setItem('matchConfig', JSON.stringify(parsed));
+                    setError('');
+                    setShowJoinSection(false);
+
+                    if (hasStarted) navigate('/');
+                    else navigate('/countdown');
+                    return;
+                  }
+
+                  // 2. Legacy/Local: Extract invite code/ID from URL
                   let inviteCode = code
                   const urlMatch = code.match(/invite=([^&]+)/)
                   if (urlMatch) {
@@ -914,7 +951,7 @@ function Lobby() {
                     }
                   }
 
-                  console.log('Extracted invite code:', inviteCode)
+                  console.log('Extracted invite ID (legacy):', inviteCode)
 
                   // Try to load match config from localStorage
                   const storageKey = `matchConfig_${inviteCode}`
