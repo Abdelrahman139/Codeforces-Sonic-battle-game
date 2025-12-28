@@ -25,7 +25,17 @@ function Navigation() {
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo/Brand */}
-          <Link to="/" className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              sessionStorage.removeItem('matchConfig')
+              if (location.pathname === '/') {
+                window.location.reload()
+              } else {
+                window.location.href = '#/'
+              }
+            }}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <motion.div
               whileHover={{ rotate: 360 }}
               transition={{ duration: 0.5 }}
@@ -36,20 +46,29 @@ function Navigation() {
             <span className="text-xl font-bold text-sonic-gold neon-glow">
               SONIC BATTLE
             </span>
-          </Link>
+          </button>
 
           {/* Navigation Links and Dark Mode Toggle */}
           <div className="flex items-center gap-4">
-            <Link
-              to="/"
+            <button
+              onClick={() => {
+                // Clear match state to allow creating a new one
+                sessionStorage.removeItem('matchConfig')
+                // Force navigation to home/lobby
+                if (location.pathname === '/') {
+                  window.location.reload()
+                } else {
+                  window.location.href = '#/'
+                }
+              }}
               className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 relative ${isActive('/') && location.pathname === '/'
                 ? 'bg-sonic-gold text-blue-900 shadow-lg shadow-yellow-500/50'
-                : 'text-white hover:bg-blue-700/50'
+                : 'text-white hover:bg-blue-700/50 cursor-pointer'
                 }`}
               style={{ zIndex: 15, pointerEvents: 'auto' }}
             >
               Home
-            </Link>
+            </button>
             {location.pathname === '/results' && (
               <span className="px-4 py-2 rounded-lg font-semibold bg-green-600/80 text-white">
                 Results

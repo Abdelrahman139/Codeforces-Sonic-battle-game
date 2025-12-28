@@ -139,76 +139,19 @@ function Lobby() {
 
   // Initialize match from sessionStorage or invite param
   useEffect(() => {
+    // Only load from session if we are NOT explicitly starting fresh (which Navigation handles by clearing it)
     const config = sessionStorage.getItem('matchConfig')
     // Check both hash params and main URL query params (handling pastes before #)
     const inviteParam = searchParams.get('invite') || new URLSearchParams(window.location.search).get('invite')
 
-    if (config) {
-      try {
-        const parsed = JSON.parse(config)
-        if (parsed.players && Array.isArray(parsed.players) && parsed.players.length > 0 &&
-          parsed.problems && Array.isArray(parsed.problems)) {
-          const now = Date.now()
-          const startTime = parsed.startTime || now
-          const endTime = parsed.endTime || (startTime + (parsed.matchDuration || 60) * 60 * 1000)
-          const hasStarted = now >= startTime
-
-          setMatchConfig(parsed)
-          setMatchHasStarted(hasStarted)
-          setTimeRemaining(hasStarted ? Math.max(0, endTime - now) : Math.max(0, startTime - now))
-
-          const scores = new Map()
-          const prevScores = new Map()
-          parsed.players.forEach(player => {
-            if (player && player.handle) {
-              scores.set(player.handle, 0)
-              prevScores.set(player.handle, 0)
-            }
-          })
-          setPlayerScores(scores)
-          setPreviousScores(prevScores)
-        }
-      } catch (err) {
-        console.error('Error parsing match config:', err)
-      }
-    } else if (inviteParam) {
-      // Try to load match config from invite param (serverless first, then local)
-      let loadedConfig = null;
-
-      // 1. Try to decode serverless config (base64)
-      try {
-        if (inviteParam.length > 50) { // Simple heuristic check
-          const decoded = decodeURIComponent(escape(window.atob(inviteParam)))
-          const parsed = JSON.parse(decoded)
-          if (parsed && parsed.matchId) {
-            loadedConfig = parsed
-            console.log('Successfully decoded serverless match config')
-          }
-        }
-      } catch (e) {
-        // Not a base64 config, ignore
-      }
-
-      // 2. If not serverless, try localStorage (legacy/local)
-      if (!loadedConfig) {
-        console.log('Loading match config from local storage for invite:', inviteParam)
-        const storedConfig = localStorage.getItem(`matchConfig_${inviteParam}`)
-        if (storedConfig) {
-          try {
-            loadedConfig = JSON.parse(storedConfig)
-          } catch (e) { console.error('Error parsing local config:', e) }
-        }
-      }
-
-      if (loadedConfig) {
-        const parsed = loadedConfig
+    // Helper to process a valid config object
+    const processConfig = (parsed) => {
+      if (parsed.players && Array.isArray(parsed.players) && parsed.players.length > 0 &&
+        parsed.problems && Array.isArray(parsed.problems)) {
         const now = Date.now()
         const startTime = parsed.startTime || now
         const endTime = parsed.endTime || (startTime + (parsed.matchDuration || 60) * 60 * 1000)
         const hasStarted = now >= startTime
-
-        // Store in sessionStorage for this user
-        sessionStorage.setItem('matchConfig', JSON.stringify(parsed))
 
         setMatchConfig(parsed)
         setMatchHasStarted(hasStarted)
@@ -225,19 +168,67 @@ function Lobby() {
         setPlayerScores(scores)
         setPreviousScores(prevScores)
 
+        // Ensure session storage is updated if we loaded from invite
+        if (!config || JSON.stringify(JSON.parse(config)) !== JSON.stringify(parsed)) {
+          sessionStorage.setItem('matchConfig', JSON.stringify(parsed))
+        }
+
         // Redirect based on match status
         if (!hasStarted) {
           // Match hasn't started - redirect to countdown page
           navigate('/countdown')
         }
         // If match has started, stay on home page (match UI will show)
+      }
+    }
+
+    // 1. Priority: Invite Link (Deep Linking)
+    if (inviteParam) {
+      let loadedConfig = null;
+      // Try to decode serverless config (base64)
+      try {
+        if (inviteParam.length > 50) {
+          const decoded = decodeURIComponent(escape(window.atob(inviteParam)))
+          const parsed = JSON.parse(decoded)
+          if (parsed && parsed.matchId) {
+            loadedConfig = parsed
+            console.log('Successfully decoded serverless match config')
+          }
+        }
+      } catch (e) { /* Not base64 */ }
+
+      // If not serverless, try localStorage (legacy/local)
+      if (!loadedConfig) {
+        console.log('Loading match config from local storage for invite:', inviteParam)
+        const storedConfig = localStorage.getItem(`matchConfig_${inviteParam}`)
+        if (storedConfig) {
+          try {
+            loadedConfig = JSON.parse(storedConfig)
+          } catch (e) { console.error('Error parsing local config:', e) }
+        }
+      }
+
+      if (loadedConfig) {
+        processConfig(loadedConfig)
+        return // Stop here, don't check session storage if we found a specific invite
+      } else {
+        // If invite param was present but no config could be loaded
+        setShowJoinSection(true)
+        setJoinInviteCode(inviteParam)
+        setError('Match not found. The invite link might be invalid or expired.')
         return
       }
 
-      // If we couldn't load the config, show join section
-      setShowJoinSection(true)
-      setJoinInviteCode(inviteParam)
-      setError('Match not found. The invite link might be invalid or expired.')
+    }
+
+    // 2. Fallback: Active Session
+    if (config) {
+      try {
+        const parsed = JSON.parse(config)
+        processConfig(parsed)
+      } catch (err) {
+        console.error('Error parsing match config:', err)
+      }
     }
   }, [searchParams])
 
