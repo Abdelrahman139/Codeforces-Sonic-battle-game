@@ -877,7 +877,7 @@ function Lobby() {
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`text-3xl md:text-7xl font-extrabold mb-4 tracking-tight ${darkMode ? '' : 'neon-glow'}`}
+            className={`text-3xl md:text-5xl font-extrabold mb-4 tracking-tight ${darkMode ? '' : 'neon-glow'}`}
             style={{ color: '#FFD700' }}
           >
             ⚡ SONIC BATTLE ⚡
@@ -1069,7 +1069,7 @@ function Lobby() {
 
 
         {/* Main Lobby Card */}
-        <div className={`rounded-2xl p-4 md:p-10 shadow-2xl backdrop-blur-sm transition-all duration-300 relative ${darkMode
+        <div className={`rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur-sm transition-all duration-300 relative ${darkMode
           ? 'card-elevated-dark border-2 border-gray-700'
           : 'card-elevated sonic-border'
           }`} style={{ zIndex: 10 }}>
@@ -1083,7 +1083,7 @@ function Lobby() {
               <button
                 onClick={decrementPlayerCount}
                 disabled={playerCount <= 2}
-                className="w-12 h-12 bg-blue-700 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold text-xl rounded-lg transition-all relative"
+                className="w-10 h-10 bg-blue-700 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold text-xl rounded-lg transition-all relative"
                 style={{ zIndex: 15, pointerEvents: playerCount <= 2 ? 'none' : 'auto' }}
               >
                 −
@@ -1123,14 +1123,14 @@ function Lobby() {
                     setValidationErrors({});
                   }
                 }}
-                className={`w-24 px-4 py-3 border-2 rounded-lg text-center text-xl font-bold focus:outline-none focus:border-sonic-gold focus:ring-2 focus:ring-sonic-gold/50 ${darkMode
+                className={`w-20 px-3 py-2 border-2 rounded-lg text-center text-xl font-bold focus:outline-none focus:border-sonic-gold focus:ring-2 focus:ring-sonic-gold/50 ${darkMode
                   ? 'bg-gray-800/50 border-gray-600 text-white'
                   : 'bg-blue-800/50 border-blue-600 text-white'
                   }`}
               />
               <button
                 onClick={incrementPlayerCount}
-                className="w-12 h-12 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xl rounded-lg transition-all relative"
+                className="w-10 h-10 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xl rounded-lg transition-all relative"
                 style={{ zIndex: 15, pointerEvents: 'auto' }}
               >
                 +
@@ -1157,7 +1157,7 @@ function Lobby() {
                       placeholder={`Player ${index + 1} Handle`}
                       value={player}
                       onChange={(e) => handlePlayerInput(index, e.target.value)}
-                      className={`flex-1 px-5 py-3.5 input-field text-white placeholder-opacity-60 ${darkMode ? 'bg-gray-800/50 border-gray-600 placeholder-gray-400' : 'placeholder-blue-300'
+                      className={`flex-1 px-4 py-2.5 input-field text-white placeholder-opacity-60 ${darkMode ? 'bg-gray-800/50 border-gray-600 placeholder-gray-400' : 'placeholder-blue-300'
                         }`}
                       disabled={validating}
                     />
@@ -1365,7 +1365,7 @@ function Lobby() {
                       num = Math.max(20, Math.min(120, num));
                       setMatchDuration(num);
                     }}
-                    className={`w-full px-4 py-3.5 pr-14 text-white text-center text-xl font-bold rounded-xl input-field shadow-inner ${darkMode ? 'bg-gray-900/50 border-gray-600' : ''
+                    className={`w-full px-4 py-2.5 pr-14 text-white text-center text-lg font-bold rounded-xl input-field shadow-inner ${darkMode ? 'bg-gray-900/50 border-gray-600' : ''
                       }`}
                     style={{ fontFeatureSettings: '"tnum"' }}
                   />
@@ -1428,7 +1428,7 @@ function Lobby() {
                       num = Math.max(1, Math.min(100, num));
                       setNumberOfProblems(num);
                     }}
-                    className={`w-full px-4 py-3.5 pr-14 text-white text-center text-xl font-bold rounded-xl input-field shadow-inner ${darkMode ? 'bg-gray-900/50 border-gray-600' : ''
+                    className={`w-full px-4 py-2.5 pr-14 text-white text-center text-lg font-bold rounded-xl input-field shadow-inner ${darkMode ? 'bg-gray-900/50 border-gray-600' : ''
                       }`}
                     style={{ fontFeatureSettings: '"tnum"' }}
                   />
@@ -1505,7 +1505,7 @@ function Lobby() {
                         const time = selectedStartTime ? selectedStartTime.split('T')[1] || '00:00' : '00:00';
                         setSelectedStartTime(`${val}T${time}`);
                       }}
-                      className={`w-full px-4 py-3.5 pr-12 rounded-xl border-2 font-mono text-lg transition-all outline-none 
+                      className={`w-full px-4 py-2.5 pr-12 rounded-xl border-2 font-mono text-lg transition-all outline-none 
                         ${darkMode
                           ? 'bg-gray-900/50 border-gray-600 focus:border-sonic-gold text-white'
                           : 'bg-blue-900/30 border-blue-500/50 focus:border-sonic-gold text-white'
