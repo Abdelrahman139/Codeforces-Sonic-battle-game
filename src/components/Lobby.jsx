@@ -871,13 +871,13 @@ function Lobby() {
   return (
     <div className={`min-h-screen p-4 md:p-8 transition-colors duration-300 relative ${darkMode ? 'bg-gray-900' : ''}`} style={{ zIndex: 10 }}>
       {/* Lobby content follows... */}
-      <div className="max-w-6xl mx-auto relative" style={{ zIndex: 10 }}>
+      <div className="max-w-4xl mx-auto relative" style={{ zIndex: 10 }}>
         {/* Header */}
-        <div className="text-center mb-10 relative" style={{ zIndex: 10 }}>
+        <div className="text-center mb-6 relative" style={{ zIndex: 10 }}>
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`text-3xl md:text-5xl font-extrabold mb-4 tracking-tight ${darkMode ? '' : 'neon-glow'}`}
+            className={`text-2xl md:text-4xl font-extrabold mb-2 tracking-tight ${darkMode ? '' : 'neon-glow'}`}
             style={{ color: '#FFD700' }}
           >
             ⚡ SONIC BATTLE ⚡
@@ -1069,17 +1069,17 @@ function Lobby() {
 
 
         {/* Main Lobby Card */}
-        <div className={`rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur-sm transition-all duration-300 relative ${darkMode
+        <div className={`rounded-xl p-4 md:p-6 shadow-2xl backdrop-blur-sm transition-all duration-300 relative ${darkMode
           ? 'card-elevated-dark border-2 border-gray-700'
           : 'card-elevated sonic-border'
           }`} style={{ zIndex: 10 }}>
 
           {/* Player Count Selection - Counter */}
-          <div className="mb-8">
-            <label className="block text-xl font-bold mb-4 text-sonic-gold">
+          <div className="mb-6">
+            <label className="block text-lg font-bold mb-3 text-sonic-gold">
               Number of Players
             </label>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-3">
               <button
                 onClick={decrementPlayerCount}
                 disabled={playerCount <= 2}
@@ -1130,7 +1130,7 @@ function Lobby() {
               />
               <button
                 onClick={incrementPlayerCount}
-                className="w-10 h-10 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xl rounded-lg transition-all relative"
+                className="w-8 h-8 bg-blue-700 hover:bg-blue-600 text-white font-bold text-lg rounded-md transition-all relative"
                 style={{ zIndex: 15, pointerEvents: 'auto' }}
               >
                 +
@@ -1139,11 +1139,11 @@ function Lobby() {
           </div>
 
           {/* Player Handles */}
-          <div className="mb-10">
-            <label className={`block text-xl font-bold mb-5 ${darkMode ? 'text-gray-200' : 'text-sonic-gold'}`}>
+          <div className="mb-6">
+            <label className={`block text-lg font-bold mb-3 ${darkMode ? 'text-gray-200' : 'text-sonic-gold'}`}>
               Player Handles
             </label>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {players.map((player, index) => (
                 <motion.div
                   key={index}
@@ -1265,8 +1265,8 @@ function Lobby() {
             </CustomizeDropdown>
 
             {/* Max Rating, Match Duration, and Number of Problems - Better Styled Inputs with Arrow Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className={`rounded-xl p-4 border-2 backdrop-blur-sm transition-all duration-200 ${darkMode
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className={`rounded-lg p-3 border backdrop-blur-sm transition-all duration-200 ${darkMode
                 ? 'bg-gray-800/40 border-gray-700'
                 : 'bg-blue-800/20 border-blue-600/40'
                 }`}>
